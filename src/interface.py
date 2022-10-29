@@ -1,7 +1,4 @@
 # Import from modules
-from platform import platform
-
-from numpy import inner
 from generateMIDI import generate_midi
 from midiToMP3 import midi_to_mp3
 
@@ -9,9 +6,18 @@ from midiToMP3 import midi_to_mp3
 import pygame
 import os
 import sys
+import pretty_midi
 
 # Define contant file name 
 MIDI_FILENAME = "major-scale"
+
+path = os.getcwd()
+midi_filename = os.path.join(path, "midiFiles", f"{MIDI_FILENAME}.mid")
+
+pm = pretty_midi.PrettyMIDI(midi_filename)
+
+for inst in pm.instruments:
+    print(inst.notes)
 
 # Get mp3 filename
 path = os.getcwd()
@@ -60,7 +66,9 @@ while True:
     if BUTTON_X < m_x < BUTTON_X + BUTTON_WIDTH and BUTTON_Y < m_y < BUTTON_Y + BUTTON_HEIGHT:
         inner_colour = 150
         if pygame.mouse.get_pressed()[0]:
+            # Generate new set of notes
             generate_midi(MIDI_FILENAME)
+            midi_to_mp3(MIDI_FILENAME)
 
             # Load new midi file and start playing it
             mp3_filename = os.path.join(path, "mp3Files", f"{MIDI_FILENAME}.mp3")
@@ -73,7 +81,7 @@ while True:
     screen.blit(text, (BUTTON_X, BUTTON_Y))
 
     # Draw 4 lines
-    for i in range(4):
+    for i in range(5):
         pygame.draw.rect(screen, (0, 0, 0), (0, HEIGHT//2+30*i, WIDTH, 5))
 
     # If not already playing, play the notes
