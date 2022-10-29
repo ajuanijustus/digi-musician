@@ -9,13 +9,13 @@ import sys
 import pretty_midi
 
 class Button:
-    def __init__(self, x, y, width, height, text, border=5):
+    def __init__(self, x, y, text, border=5):
         self.x = x
         self.y = y
-        self.width = width
-        self.height = height
+        self.text = font.render(text, True, (0, 0, 0))
+        self.width = self.text.get_width()
+        self.height = self.text.get_height()
         self.border = border
-        self.text = text
         self.inner_colour = 255
     
     def draw(self, screen):
@@ -51,14 +51,14 @@ pygame.font.init()
 pygame.mixer.music.load(mp3_filename)
 
 font = pygame.font.SysFont("Helvetica", 12)
-text = font.render("Re-Generate", True, (0, 0, 0))
 
 # Set screen width and height
 WIDTH, HEIGHT = (800, 600)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # Button border
-button_1 = Button(10, 10, text.get_width(), text.get_height(), text, 5)
+buttonGen = Button(10, 10, "Re-Generate", 5)
+buttonChords = Button(10, 10, "Chords On", 5)
 
 # Generating MIDI variables
 base_note = 60
@@ -77,12 +77,13 @@ while True:
     # Clear the screen
     screen.fill((255, 255, 255))
 
-    button_1.draw(screen)
+    buttonGen.draw()
+    buttonChords.draw()
 
     m_x, m_y = pygame.mouse.get_pos()
 
-    if button_1.hovered(*pygame.mouse.get_pos()):
-        button_1.inner_colour = 150
+    if buttonGen.hovered(*pygame.mouse.get_pos()):
+        buttonGen.inner_colour = 150
         if pygame.mouse.get_pressed()[0]:
             # Stop the music so that the file is no longer open
             pygame.mixer.music.stop()
@@ -98,7 +99,7 @@ while True:
 
             play = False
     else:
-        button_1.inner_colour = 255
+        buttonGen.inner_colour = 255
 
     # Draw 4 lines
     for i in range(5):
