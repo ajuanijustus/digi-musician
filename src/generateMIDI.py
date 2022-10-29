@@ -10,6 +10,9 @@ duration = 1    # In beats
 tempo    = 60   # In BPM
 volume   = 100  # 0-127, as per the MIDI standard
 
+# Constant name of file
+MIDI_FILENAME = "major-scale"
+
 def generate_midi(MIDI_FILENAME):
     MyMIDI = MIDIFile(1)  # One track, defaults to format 1 (tempo track is created
                         # automatically)
@@ -20,5 +23,5 @@ def generate_midi(MIDI_FILENAME):
 
     path = os.getcwd()
 
-    with open(os.path.join(path, "midiFiles", MIDI_FILENAME, ".mid"), "wb") as output_file:
+    with open(path+"/midiFiles/" + MIDI_FILENAME + ".mid", "wb") as output_file:
         MyMIDI.writeFile(output_file)

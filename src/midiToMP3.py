@@ -17,7 +17,7 @@ def midi_to_mp3(MIDI_FILENAME):
     wav_filename = os.path.join(path, "tempFiles", "output.wav")
 
     # Convert midi to wav file
-    fs.midi_to_audio(MIDI_FILENAME, wav_filename)
+    fs.midi_to_audio(midi_filename, wav_filename)
 
     # Open wav file and convert to mp3
     song = AudioSegment.from_wav(wav_filename)
