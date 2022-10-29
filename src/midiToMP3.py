@@ -16,8 +16,8 @@ path = os.getcwd()
 path = os.path.join(path, "midiFiles", f"{MIDI_FILE}.mid")
 
 # Convert midi to wav file
-fs.midi_to_audio(path, "output.wav")
+fs.midi_to_audio(path + f"\\midiFiles\\{MIDI_FILE}.mid", "output.wav")
 
 # Open wav file and convert to mp3
 song = AudioSegment.from_wav("output.wav")
-song.export(f"{MIDI_FILE}.mp3", format="mp3")
+song.export(path + f"\\mp3Files\\{MIDI_FILE}.mp3", format="mp3")

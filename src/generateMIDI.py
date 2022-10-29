@@ -1,3 +1,5 @@
+import os
+
 from midiutil import MIDIFile
 
 degrees  = [60, 62, 64, 65, 67, 69, 71, 72]  # MIDI note number
@@ -17,5 +19,7 @@ for i, pitch in enumerate(degrees):
 
 midi_filename = "major-scale"
 
-with open("../midiFiles/" + midi_filename + ".mid", "wb") as output_file:
+path = os.getcwd()
+
+with open(path+"/midiFiles/" + midi_filename + ".mid", "wb") as output_file:
     MyMIDI.writeFile(output_file)
