@@ -9,7 +9,7 @@ from pydub import AudioSegment
 fs = FluidSynth()
 
 # Constant name of file
-MIDI_FILE = "bohemian"
+MIDI_FILE = "major-scale"
 
 # Gen path to file
 path = os.getcwd()
