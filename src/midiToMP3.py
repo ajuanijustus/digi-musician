@@ -8,16 +8,17 @@ from pydub import AudioSegment
 # Instantiate fluid synth
 fs = FluidSynth()
 
-# Constant name of file
-MIDI_FILE = "major-scale"
+def midi_to_mp3(MIDI_FILENAME):
 
-# Gen path to file
-path = os.getcwd()
-path = os.path.join(path, "midiFiles", f"{MIDI_FILE}.mid")
+    # Gen path to file
+    path = os.getcwd()
+    midi_filename = os.path.join(path, "midiFiles", f"{MIDI_FILENAME}.mid")
+    mp3_filename = os.path.join(path, "mp3Files", f"{MIDI_FILENAME}.mp3")
+    wav_filename = os.path.join(path, "tempFiles", "output.wav")
 
-# Convert midi to wav file
-fs.midi_to_audio(path + f"\\midiFiles\\{MIDI_FILE}.mid", "output.wav")
+    # Convert midi to wav file
+    fs.midi_to_audio(MIDI_FILENAME, wav_filename)
 
-# Open wav file and convert to mp3
-song = AudioSegment.from_wav("output.wav")
-song.export(path + f"\\mp3Files\\{MIDI_FILE}.mp3", format="mp3")
+    # Open wav file and convert to mp3
+    song = AudioSegment.from_wav(wav_filename)
+    song.export(mp3_filename, format="mp3")
