@@ -13,8 +13,7 @@ MIDI_FILE = "major-scale"
 
 # Gen path to file
 path = os.getcwd()
-path += "\\midiFiles\\"
-path += f"{MIDI_FILE}.mid"
+path = os.path.join(path, "midiFiles", f"{MIDI_FILE}.mid")
 
 # Convert midi to wav file
 fs.midi_to_audio(path, "output.wav")
