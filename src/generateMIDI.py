@@ -28,6 +28,7 @@ def generate_scale(base_note=60, scale_type='major'):
 ## 60 - C4 (middle C)
 ## 24 - C1
 ## 36 - C2
+## 48 - C3
 
 # melody note -36 for base chord base
 
