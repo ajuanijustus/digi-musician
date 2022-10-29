@@ -8,16 +8,36 @@ import os
 import sys
 import pretty_midi
 
-# Define contant file name 
-MIDI_FILENAME = "major-scale"
+class Button:
+    def __init__(self, x, y, width, height, text, border=5):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.border = border
+        self.text = text
+        self.inner_colour = 255
+    
+    def draw(self, screen):
+        pygame.draw.rect(screen, (0, 0, 0), (self.x-self.border, self.y-self.border, self.width + 2*self.border, self.height + 2*self.border))
+        pygame.draw.rect(screen, [self.inner_colour]*3, (self.x, self.y, self.width, self.height))
 
-path = os.getcwd()
+        screen.blit(self.text, (self.x, self.y))
+
+    def hovered(self, x, y):
+        return self.x < x < self.x + self.width and self.y < y < self.y + self.height
+
+
+# Define contant file name 
+MIDI_FILENAME = "c_scale_withbass_random"
+
+"""path = os.getcwd()
 midi_filename = os.path.join(path, "midiFiles", f"{MIDI_FILENAME}.mid")
 
 pm = pretty_midi.PrettyMIDI(midi_filename)
 
 for inst in pm.instruments:
-    print(inst.notes)
+    print(inst.notes)"""
 
 # Get mp3 filename
 path = os.getcwd()
@@ -38,13 +58,12 @@ WIDTH, HEIGHT = (800, 600)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # Button border
-BORDER = 5
-BUTTON_X = 10
-BUTTON_Y = 10
-BUTTON_WIDTH = text.get_width() + BORDER
-BUTTON_HEIGHT = text.get_height() + BORDER
+button_1 = Button(10, 10, text.get_width(), text.get_height(), text, 5)
 
-inner_colour = 255
+# Generating MIDI variables
+base_note = 60
+scale_type = 'major'
+chords_flag = False
 
 # Main interface loop
 play = False
@@ -58,16 +77,19 @@ while True:
     # Clear the screen
     screen.fill((255, 255, 255))
 
-    pygame.draw.rect(screen, (0, 0, 0), (BUTTON_X - BORDER, BUTTON_Y - BORDER, BUTTON_WIDTH+2*BORDER, BUTTON_HEIGHT+2*BORDER))
-    pygame.draw.rect(screen, [inner_colour]*3, (BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT))
+    button_1.draw(screen)
 
     m_x, m_y = pygame.mouse.get_pos()
 
-    if BUTTON_X < m_x < BUTTON_X + BUTTON_WIDTH and BUTTON_Y < m_y < BUTTON_Y + BUTTON_HEIGHT:
-        inner_colour = 150
+    if button_1.hovered(*pygame.mouse.get_pos()):
+        button_1.inner_colour = 150
         if pygame.mouse.get_pressed()[0]:
+            # Stop the music so that the file is no longer open
+            pygame.mixer.music.stop()
+            pygame.mixer.music.unload()
+
             # Generate new set of notes
-            generate_midi(MIDI_FILENAME)
+            generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag)
             midi_to_mp3(MIDI_FILENAME)
 
             # Load new midi file and start playing it
@@ -76,9 +98,7 @@ while True:
 
             play = False
     else:
-        inner_colour = 255
-
-    screen.blit(text, (BUTTON_X, BUTTON_Y))
+        button_1.inner_colour = 255
 
     # Draw 4 lines
     for i in range(5):

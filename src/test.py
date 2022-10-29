@@ -1,5 +1,5 @@
-from generateMIDI import *
-from midiToMP3 import *
+from generateMIDI import generate_midi
+from midiToMP3 import midi_to_mp3
 
 # Define contant file name 
 MIDI_FILENAME = "c_scale_withbass_random"

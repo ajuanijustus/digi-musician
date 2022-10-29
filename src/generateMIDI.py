@@ -3,6 +3,8 @@ import random
 
 from midiutil import MIDIFile
 
+#from interface import MIDI_FILENAME
+
 def generate_scale(base_note=60, scale_type='major'):
     i = base_note
     if scale_type == 'major':

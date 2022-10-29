@@ -1,4 +1,7 @@
 .mid
 .mp3
 .wav
-./__pycache__/*
+*__pycache__*
+midiFiles/
+mp3Files/
+tempFiles/
