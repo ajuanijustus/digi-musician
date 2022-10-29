@@ -1,5 +1,6 @@
 import os
 import random
+from secrets import choice
 
 from midiutil import MIDIFile
 
@@ -22,6 +23,7 @@ def generate_scale(base_note=60, scale_type='major'):
 
 #major chord : 0 +4 +3
 #minor chord : 0 +3 +4
+#diminished chord: 0 +3 +3
 
 # chords index 1, 3, 5
 #MIDI note numbers
@@ -44,24 +46,43 @@ volume   = 100  # 0-127, as per the MIDI standard
 
 def generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag=False):
     scale = generate_scale(base_note, scale_type)
-    melody = [random.choice(scale) for x in range(40)]
-
-    if scale_type == 'major':
-        m = 4
-    else:
-        m = 3
+    # melody = [random.choice(scale) for x in range(20)]
 
     MyMIDI = MIDIFile(1)  # One track, defaults to format 1 (tempo track is created automatically)
     MyMIDI.addTempo(track, time, tempo)
 
-    for i, pitch in enumerate(melody):
-        # melody
-        MyMIDI.addNote(track, channel, pitch, time + i, duration, volume)
-        # bass chord - minus 36 for bass chord's base
-        if (i%4 == 0) and chords_flag:
-            MyMIDI.addNote(track, channel, pitch-36, time + i, 3, volume-10)
-            MyMIDI.addNote(track, channel, pitch-36+m, time + i, 3, volume-10)
-            MyMIDI.addNote(track, channel, pitch-36+7, time + i, 3, volume-10)
+    spook = True
+
+    if spook == True:
+        scale = [base_note, base_note+3, base_note+6, base_note+9, base_note+12, base_note+15, base_note+18]
+        for i, pitch in enumerate([random.choice(scale) for x in range(20)]):
+            # melody
+            MyMIDI.addNote(track, channel, pitch, time + i, duration, volume)
+            # bass chord - minus 36 for bass chord's base
+            if (i%4 == 0) and chords_flag:
+                MyMIDI.addNote(track, channel, pitch-36, time + i, 3, volume-10)
+                MyMIDI.addNote(track, channel, pitch-36+3, time + i, 3, volume-10)
+                MyMIDI.addNote(track, channel, pitch-36+6, time + i, 3, volume-10)
+    else:
+        for t in range(20):
+            i = random.choice(range(len(scale)))
+            pitch = scale[i]
+            # melody
+            MyMIDI.addNote(track, channel, pitch, time + t, duration, volume)
+            # bass chord - minus 36 for bass chord's base
+            if (i%4 == 0) and chords_flag:
+                if i in [0, 3, 4, 7]: # major chords
+                    MyMIDI.addNote(track, channel, pitch-36, time + t, 3, volume-10)
+                    MyMIDI.addNote(track, channel, pitch-36+4, time + t, 3, volume-10)
+                    MyMIDI.addNote(track, channel, pitch-36+7, time + t, 3, volume-10)
+                elif i in [1, 2, 5]: # minor chords
+                    MyMIDI.addNote(track, channel, pitch-36, time + t, 3, volume-10)
+                    MyMIDI.addNote(track, channel, pitch-36+3, time + t, 3, volume-10)
+                    MyMIDI.addNote(track, channel, pitch-36+7, time + t, 3, volume-10)
+                else: # diminished chords
+                    MyMIDI.addNote(track, channel, pitch-36, time + t, 3, volume-10)
+                    MyMIDI.addNote(track, channel, pitch-36+3, time + t, 3, volume-10)
+                    MyMIDI.addNote(track, channel, pitch-36+6, time + t, 3, volume-10)
 
     path = os.getcwd()
 
