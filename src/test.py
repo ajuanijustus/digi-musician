@@ -4,7 +4,7 @@ from midiToMP3 import midi_to_mp3
 # Define contant file name 
 MIDI_FILENAME = "c_scale_withbass_random"
 
-base_note = 60 #int input?
+base_note = 60 # int input?
 scale_type = 'major' # drop down?
 chords_flag = False #toggle
 
