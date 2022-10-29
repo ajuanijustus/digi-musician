@@ -44,7 +44,7 @@ volume   = 100  # 0-127, as per the MIDI standard
 
 def generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag=False):
     scale = generate_scale(base_note, scale_type)
-    melody = [random.choice(scale) for x in range(10)]
+    melody = [random.choice(scale) for x in range(40)]
 
     if scale_type == 'major':
         m = 4
@@ -59,9 +59,9 @@ def generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag=False):
         MyMIDI.addNote(track, channel, pitch, time + i, duration, volume)
         # bass chord - minus 36 for bass chord's base
         if (i%4 == 0) and chords_flag:
-            MyMIDI.addNote(track, channel, pitch-36, time + i, 3, volume-30)
-            MyMIDI.addNote(track, channel, pitch-36+m, time + i, 3, volume-30)
-            MyMIDI.addNote(track, channel, pitch-36+7, time + i, 3, volume-30)
+            MyMIDI.addNote(track, channel, pitch-36, time + i, 3, volume-10)
+            MyMIDI.addNote(track, channel, pitch-36+m, time + i, 3, volume-10)
+            MyMIDI.addNote(track, channel, pitch-36+7, time + i, 3, volume-10)
 
     path = os.getcwd()
 
