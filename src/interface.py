@@ -58,10 +58,11 @@ class Button:
 
 # Input Class
 class IntInput(Button):
-    def __init__(self, x, y, text, width, border=5):
+    def __init__(self, x, y, text, width, label, border=5):
         super().__init__(x, y, text, border)
         self.width = width
         self.typing = False
+        self.label = font.render(label, True, (0, 0, 0))
 
     def rerender(self):
         saved_width = self.width
@@ -83,6 +84,11 @@ class IntInput(Button):
         if not self.typing:
             self.inner_colour = 255
         return False
+
+    def draw(self, screen):
+        super().draw(screen)
+
+        screen.blit(self.label, (self.x - self.label.get_width() - self.border - 5, self.y))
 
 class Note:
     def __init__(self, start, duration, note, note_length, song_length) -> None:
@@ -228,9 +234,9 @@ buttonChords = Button(buttonSave.x+buttonSave.width+20, 10, "Chords Off")
 buttonScale = Button(buttonChords.x+buttonChords.width+20, 10, "major".title())
 
 inputs = [
-    IntInput(buttonScale.x+buttonScale.width+80, 10, " ", 100),
-    IntInput(buttonScale.x+buttonScale.width+200, 10, " ", 100),
-    IntInput(buttonSave.x+buttonSave.width+20, 50, " ", 100)
+    IntInput(buttonScale.x+buttonScale.width+80, 10, "", 100, "Base note:"),
+    IntInput(buttonScale.x+buttonScale.width+250, 10, "", 100, "Tempo: "),
+    IntInput(buttonSave.x+buttonSave.width+20, 50, "", 100, "Chord: ")
 ]
 
 # Var to keep track of music
@@ -270,16 +276,20 @@ while True:
     buttonSave.draw(screen)
     buttonScale.draw(screen)
 
-    for input in inputs:
-        input.draw(screen)
+    for (i, input) in enumerate(inputs):
+        if i == len(inputs) - 1:
+            if chords_flag:
+                input.draw(screen)
+        else:
+            input.draw(screen)
 
     # Check if first button hovered/clicked
     if buttonGen.hovered(*pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-        if inputs[0].text != " ":
+        if inputs[0].text != "":
             base_note = int(inputs[0].text)
-        if inputs[1].text != " ":
+        if inputs[1].text != "":
             tempo = int(inputs[1].text)
-        if inputs[2].text != " ":
+        if inputs[2].text != "":
             chords_interval = int(inputs[2].text)
         
         p_notes = gen_new(base_note, scale_type, chords_flag, tempo=tempo, chords_interval=chords_interval)
@@ -347,11 +357,11 @@ while True:
         cat_hight = 8
         mx, my = pygame.mouse.get_pos()
         if cat_x <= mx <= cat_x+cat_wid and cat_y <= my <= cat_y+cat_hight and mouse_pressed:
-            if inputs[0].text != " ":
+            if inputs[0].text != "":
                 base_note = int(inputs[0].text)
-            if inputs[1].text != " ":
+            if inputs[1].text != "":
                 tempo = int(inputs[1].text)
-            if inputs[2].text != " ":
+            if inputs[2].text != "":
                 chords_interval = int(inputs[2].text)
             p_notes = gen_new(base_note, scale_type, chords_flag, tempo, True, chords_interval=chords_interval)
             notes = gen_notes(p_notes)
