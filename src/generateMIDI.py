@@ -17,7 +17,7 @@ Bass assumption: Base note for bass chord is melody note -36 (3 octaves).
 '''
 
 base_note_options = range(60, 96) # C4 to C7
-scale_type_options = ['major', 'natural_minor', 'harmonic_minor', 'melodic_minor']
+scale_type_options = ['major', 'natural_minor', 'blues_minor', 'blues_major']
 
 def generate_scale(base_note=60, scale_type='major'):
     i = base_note
