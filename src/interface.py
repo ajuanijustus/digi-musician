@@ -122,7 +122,7 @@ class Note:
 
 
 # Function to generte new song
-def gen_new(base_note, scale_type, chords_flag, tempo=90, spooky_mode=False):
+def gen_new(base_note, scale_type, chords_flag, tempo=90, spooky_mode=False, chords_interval = 2):
     # Stop the music so that the file is no longer open
     try:
         pygame.mixer.music.stop()
@@ -131,7 +131,7 @@ def gen_new(base_note, scale_type, chords_flag, tempo=90, spooky_mode=False):
         ...
 
     # Generate new set of notes
-    generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag=chords_flag, tempo=tempo, spook=spooky_mode)
+    generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag=chords_flag, tempo=tempo, spook=spooky_mode, chords_interval=chords_interval)
     midi_to_mp3(MIDI_FILENAME)
 
     # Load new midi file and start playing it
@@ -225,9 +225,11 @@ buttonGen = Button(10, 10, "Re-Generate")
 buttonSave = Button(buttonGen.x+buttonGen.width+20, 10, "Save")
 buttonChords = Button(buttonSave.x+buttonSave.width+20, 10, "Chords Off")
 buttonScale = Button(buttonChords.x+buttonChords.width+20, 10, "major".title())
+buttonChordsInterval = Button(buttonSave.x+buttonSave.width+20, 20, "4 Beats")
 inputs = [
-    IntInput(buttonScale.x+buttonScale.width+80, 10, " ", 100),
-    IntInput(buttonScale.x+buttonScale.width+200, 10, " ", 100)
+    IntInput(buttonScale.x+buttonScale.width+80, 10, "", 100),
+    IntInput(buttonScale.x+buttonScale.width+200, 10, "", 100),
+    IntInput(buttonSave.x+buttonSave.width+20, 50, "", 100)
 ]
 
 # Var to keep track of music
@@ -276,8 +278,10 @@ while True:
             base_note = int(inputs[0].text)
         if inputs[1].text != " ":
             tempo = int(inputs[1].text)
+        if inputs[2].text != " ":
+            chords_interval = int(inputs[2].text)
         
-        p_notes = gen_new(base_note, scale_type, chords_flag, tempo=tempo)
+        p_notes = gen_new(base_note, scale_type, chords_flag, tempo=tempo, chords_interval=chords_interval)
         notes = gen_notes(p_notes)
         play = False
 
@@ -300,6 +304,7 @@ while True:
     for input in inputs:
         if input.hovered(*pygame.mouse.get_pos()):
             if pygame.mouse.get_pressed()[0]:
+                input.text=""
                 input.typing = True
                 input.inner_colour = 150
         elif pygame.mouse.get_pressed()[0]:
@@ -345,7 +350,9 @@ while True:
                 base_note = int(inputs[0].text)
             if inputs[1].text != " ":
                 tempo = int(inputs[1].text)
-            p_notes = gen_new(base_note, scale_type, chords_flag, tempo, True)
+            if inputs[2].text != " ":
+                chords_interval = int(inputs[2].text)
+            p_notes = gen_new(base_note, scale_type, chords_flag, tempo, True, chords_interval=chords_interval)
             notes = gen_notes(p_notes)
             spooky_mode = False
             play = False
