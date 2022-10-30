@@ -23,16 +23,16 @@ class Button:
         self.x = x
         self.y = y
         self.text = text
-        self.content = font.render(self.text, True, (0, 0, 0))
+        self.content = font.render(self.text, True, [BLACK]*3)
         self.width = self.content.get_width()
         self.height = self.content.get_height()
         self.border = border
-        self.inner_colour = 255
+        self.inner_colour = WHITE
     
     # Draw function
     def draw(self, screen):
         # Draw outer and inner rect
-        pygame.draw.rect(screen, (0, 0, 0), (self.x-self.border, self.y-self.border, self.width + 2*self.border, self.height + 2*self.border))
+        pygame.draw.rect(screen, [BLACK]*3, (self.x-self.border, self.y-self.border, self.width + 2*self.border, self.height + 2*self.border))
         pygame.draw.rect(screen, [self.inner_colour]*3, (self.x, self.y, self.width, self.height))
 
         # Draw inner text
@@ -43,16 +43,16 @@ class Button:
         # Check if mouse within inner rect
         if self.x < x < self.x + self.width and self.y < y < self.y + self.height:
             # Show visually it is hovered on
-            self.inner_colour = 150
+            self.inner_colour = GREY
             return True
         # Return to normal colour when not hovered on
-        self.inner_colour = 255
+        self.inner_colour = WHITE
         return False
 
     # Rerender text
     def rerender(self):
         # Redefine content, width and height
-        self.content = font.render(self.text, True, (0, 0, 0))
+        self.content = font.render(self.text, True, [BLACK]*3)
         self.width = self.content.get_width()
         self.height = self.content.get_height()
 
@@ -62,7 +62,7 @@ class IntInput(Button):
         super().__init__(x, y, text, border)
         self.width = width
         self.typing = False
-        self.label = font.render(label, True, (0, 0, 0))
+        self.label = font.render(label, True, [BLACK]*3)
 
     def rerender(self):
         saved_width = self.width
@@ -77,12 +77,12 @@ class IntInput(Button):
         # Check if mouse within inner rect
         if self.x < x < self.x + self.width and self.y < y < self.y + self.height:
             # Show visually it is hovered on
-            self.inner_colour = 150
+            self.inner_colour = GREY
             return True
 
         # Return to normal colour when not hovered on
         if not self.typing:
-            self.inner_colour = 255
+            self.inner_colour = WHITE
         return False
 
     def draw(self, screen):
@@ -97,12 +97,12 @@ class Note:
         self.note = note
 
         note_height = dict(zip("CDEFGAB",[0,1,2,3,4,5,6]))
-        note_base_height = HEIGHT // 3 + 135
-        chord_base_height = 2 * HEIGHT // 3 + 135
+        note_base_height = HEIGHT // 3 + 7*(LINE_GAP//2)
+        chord_base_height = 2 * HEIGHT // 3 + 5*(LINE_GAP//2)
 
-        gap_len = (WIDTH - 40) / (song_length // note_length)
+        gap_len = (WIDTH - PADDING*2) / (song_length // note_length)
 
-        self.x = (self.start//note_length)*gap_len + 20
+        self.x = (self.start//note_length)*gap_len + PADDING
 
         self.display_hash = False
         if round(self.duration,2) == round(note_length,2):
@@ -114,20 +114,18 @@ class Note:
             self.fill = True
             self.y = chord_base_height
 
-        self.y -= note_height[self.note[0]]*15
-
-        print(self.note[1])
+        self.y -= note_height[self.note[0]]*(LINE_GAP//2)
         
-        self.note_h = 40
-        self.radius = 8
+        self.note_h = LINE_GAP
+        self.radius = LINE_THICKNESS + 2
 
     def draw(self, screen):
-        pygame.draw.circle(screen, (0, 0, 0), (self.x, self.y), self.radius)
+        pygame.draw.circle(screen, [BLACK]*3, (self.x, self.y), self.radius)
 
         if self.fill:
-            pygame.draw.circle(screen, (255, 255, 255), (self.x, self.y), self.radius - 2)
+            pygame.draw.circle(screen, [WHITE]*3, (self.x, self.y), self.radius - 2)
 
-        pygame.draw.line(screen, (0, 0, 0), (self.x+self.radius-1, self.y), (self.x+self.radius-1, self.y - self.note_h), 2)
+        pygame.draw.line(screen, [BLACK]*3, (self.x+self.radius-1, self.y), (self.x+self.radius-1, self.y - self.note_h), 2)
         
         if self.display_hash:
             screen.blit(hash_sym, (self.x-self.radius-2, self.y-hash_sym.get_height()-self.radius-2))
@@ -196,6 +194,13 @@ def gen_notes(note_set):
 WIDTH, HEIGHT = (800, 600)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
+LINE_THICKNESS = 3
+LINE_GAP = 24
+PADDING = 100
+GREY = 175
+WHITE = 255
+BLACK = 0
+
 # Define contant file name 
 MIDI_FILENAME = "c_scale_withbass_random"
 
@@ -226,7 +231,7 @@ pygame.mixer.music.load(mp3_filename)
 # Create font to render
 font = pygame.font.SysFont("Helvetica", 12)
 
-hash_sym = font.render("#", True, (0, 0, 0))
+hash_sym = font.render("#", True, [BLACK]*3)
 
 # Dict to help flip text value
 opp = {"Chords On":"Chords Off", "Chords Off":"Chords On"}
@@ -236,16 +241,23 @@ scale_opp = {
 }
 
 # Buttons
-buttonGen = Button(10, 10, "Re-Generate")
-buttonSave = Button(buttonGen.x+buttonGen.width+20, 10, "Save")
-buttonChords = Button(buttonSave.x+buttonSave.width+20, 10, "Chords Off")
-buttonScale = Button(buttonChords.x+buttonChords.width+20, 10, "major".title())
+BUTTON_PADDING = 20
+Y_PADDING = 10
+X_PADDING = 10
+INPUT_WIDTH = 100
+TEXT_PADDING = 50
+buttonGen = Button(X_PADDING, Y_PADDING, "Re-Generate")
+buttonSave = Button(buttonGen.x+buttonGen.width+BUTTON_PADDING, Y_PADDING, "Save")
+buttonChords = Button(buttonSave.x+buttonSave.width+BUTTON_PADDING, Y_PADDING, "Chords Off")
+buttonScale = Button(buttonChords.x+buttonChords.width+BUTTON_PADDING, Y_PADDING, "major".title())
 
 inputs = [
-    IntInput(buttonScale.x+buttonScale.width+140, 10, "", 100, "Base note:"),
-    IntInput(buttonScale.x+buttonScale.width+310, 10, "", 100, "Tempo: "),
-    IntInput(buttonSave.x+buttonSave.width+20, 50, "", 100, "Chord: ")
+    IntInput(buttonScale.x+buttonScale.width+BUTTON_PADDING+TEXT_PADDING, Y_PADDING, "", INPUT_WIDTH, "Base note:"),
+    IntInput(buttonScale.x+buttonScale.width+INPUT_WIDTH+TEXT_PADDING, Y_PADDING, "", INPUT_WIDTH, "Tempo: "),
+    IntInput(buttonSave.x+buttonSave.width+BUTTON_PADDING, buttonChords.y+buttonChords.height+buttonChords.border + Y_PADDING, "", INPUT_WIDTH, "Chord: ")
 ]
+
+cat_x_pos, cat_y_pos = (WIDTH - cat.get_width())//2, (HEIGHT - cat.get_height())//2
 
 # Var to keep track of music
 play = False
@@ -276,7 +288,7 @@ while True:
 
 
     # Clear the screen
-    screen.fill((255, 255, 255))
+    screen.fill([WHITE]*3)
 
     # Draw buttons
     buttonGen.draw(screen)
@@ -325,10 +337,10 @@ while True:
             if pygame.mouse.get_pressed()[0]:
                 input.text=""
                 input.typing = True
-                input.inner_colour = 150
+                input.inner_colour = GREY
         elif pygame.mouse.get_pressed()[0]:
             input.typing = False
-            input.inner_colour = 255
+            input.inner_colour = WHITE
         
         if input.typing:
             for num in pressed_keys:
@@ -339,13 +351,13 @@ while True:
 
                 input.rerender()
 
-    # Draw 4 lines
+    # Draw 5 lines
     for i in range(5):
-        pygame.draw.rect(screen, (0, 0, 0), (0, HEIGHT//3+30*i, WIDTH, 5))
+        pygame.draw.rect(screen, [BLACK]*3, (0, HEIGHT//3+LINE_GAP*i, WIDTH, LINE_THICKNESS))
 
-    # Draw 4 lines
+    # Draw 5 lines
     for i in range(5):
-        pygame.draw.rect(screen, (0, 0, 0), (0, 2*HEIGHT//3+30*i, WIDTH, 5))
+        pygame.draw.rect(screen, [BLACK]*3, (0, 2*HEIGHT//3+LINE_GAP*i, WIDTH, LINE_THICKNESS))
 
     for note in notes:
         note.draw(screen)
@@ -359,8 +371,8 @@ while True:
         spooky_mode = True
     
     if spooky_mode:
-        cat_x = 293+cat.get_width()//2
-        cat_y = 18+cat.get_height()//2
+        cat_x = cat_x_pos-7+cat.get_width()//2
+        cat_y = cat_y_pos+8+cat.get_height()//2
         cat_wid = 15
         cat_hight = 8
         mx, my = pygame.mouse.get_pos()
@@ -375,7 +387,7 @@ while True:
             notes = gen_notes(p_notes)
             spooky_mode = False
             play = False
-        screen.blit(cat, (300, 10))
+        screen.blit(cat, (cat_x_pos, cat_y_pos))
     
     # Update the screen
     pygame.display.flip()
