@@ -14,6 +14,9 @@ Watch out for the _spooky_ easter egg!
 ### Our Inspiration ❤️
 "I wish I found some chords in an order that is new" - Stressed Out by twenty one pilots
 
+### Installation
+In order for the program to run you must first create 3 folders "mp3Files", "midiFiles" and "tempFiles". You must also install FluidSynth, ffmpeg and have a soundfont in the directory specified by fluidsynth (this is a bit of a hassle to sort out, sorry).
+
 ## Research
 1. <https://www.tensorflow.org/tutorials/audio/music_generation>
 2. FluidSynth (MIDI Synthesiser https://pypi.org/project/pyFluidSynth/)
