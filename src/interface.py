@@ -235,6 +235,7 @@ pygame.mixer.music.load(mp3_filename)
 
 # Create font to render
 font = pygame.font.SysFont("Helvetica", 12)
+font2 = pygame.font.SysFont("Consolas", 90)
 
 hash_sym = font.render("#", True, [BLACK]*3)
 
@@ -269,6 +270,8 @@ play = False
 spooky_keys = [pygame.K_s, pygame.K_p, pygame.K_k, pygame.K_y]
 spooky_mode = False
 
+banner = font2.render("DigiMusician", True, (202, 133, 0))
+
 # Main interface loop
 while True:
     pressed_keys = []
@@ -294,6 +297,8 @@ while True:
 
     # Clear the screen
     screen.fill([WHITE]*3)
+
+    screen.blit(banner, ((WIDTH-banner.get_width())//2, 70))
 
     # Draw buttons
     buttonGen.draw(screen)

@@ -7,6 +7,6 @@
 *__pycache__*
 
 # File folders
-midiFiles/
-mp3Files/
-tempFiles/
+midiFiles/*
+mp3Files/*
+tempFiles/*
