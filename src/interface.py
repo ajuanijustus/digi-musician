@@ -91,10 +91,12 @@ class IntInput(Button):
         screen.blit(self.label, (self.x - self.label.get_width() - self.border - 5, self.y))
 
 class Note:
-    def __init__(self, start, duration, note, note_length, song_length) -> None:
+    def __init__(self, start, duration, note, note_length, song_length, octave) -> None:
         self.start = start
         self.duration = duration
         self.note = note
+
+        self.octave = octave
 
         note_height = dict(zip("CDEFGAB",[0,1,2,3,4,5,6]))
         note_base_height = HEIGHT // 3 + 7*(LINE_GAP//2)
@@ -110,6 +112,7 @@ class Note:
             self.y = note_base_height
             if self.note[1] == "#":
                 self.display_hash = True
+
         else:
             self.fill = True
             self.y = chord_base_height
@@ -159,7 +162,9 @@ def gen_new(base_note, scale_type, chords_flag, tempo=90, spooky_mode=False, cho
 
     notes = list(zip(starts, durs, sample_note_names, ends))
 
-    return notes
+    octave = pretty_midi.note_number_to_name(base_note)[-1]
+
+    return notes, octave
 
 
 # Function to turn  midi_notes into a dataframe
@@ -184,11 +189,10 @@ def midi_to_notes(midi_file: str) -> pd.DataFrame:
 
   return pd.DataFrame({name: np.array(value) for name, value in notes.items()})
 
-def gen_notes(note_set):
+def gen_notes(note_set, octave=4):
     notes = []
     for note in note_set:
-        notes.append(Note(*note[:3], min(note_set, key=lambda x: x[1])[1], max(note_set, key=lambda x: x[3])[3]))
-
+        notes.append(Note(*note[:3], min(note_set, key=lambda x: x[1])[1], max(note_set, key=lambda x: x[3])[3], octave))
     return notes
 
 # Set screen width and height
@@ -217,8 +221,8 @@ path = os.getcwd()
 midi_filename = os.path.join(path, "midiFiles", f"{MIDI_FILENAME}.mid")
 
 # Generate midi files
-p_notes = gen_new(base_note, scale_type, chords_flag)
-notes = gen_notes(p_notes)
+p_notes, octave = gen_new(base_note, scale_type, chords_flag)
+notes = gen_notes(p_notes, octave)
 
 # Get mp3 filename
 path = os.getcwd()
@@ -313,8 +317,8 @@ while True:
         if inputs[2].text != "":
             chords_interval = int(inputs[2].text)
         
-        p_notes = gen_new(base_note, scale_type, chords_flag, tempo=tempo, chords_interval=chords_interval)
-        notes = gen_notes(p_notes)
+        p_notes, octave = gen_new(base_note, scale_type, chords_flag, tempo=tempo, chords_interval=chords_interval)
+        notes = gen_notes(p_notes, octave)
         play = False
 
     # Check if second button hovered/clicked
@@ -384,8 +388,8 @@ while True:
                 tempo = int(inputs[1].text)
             if inputs[2].text != "":
                 chords_interval = int(inputs[2].text)
-            p_notes = gen_new(base_note, scale_type, chords_flag, tempo, True, chords_interval=chords_interval)
-            notes = gen_notes(p_notes)
+            p_notes, octave = gen_new(base_note, scale_type, chords_flag, tempo, True, chords_interval=chords_interval)
+            notes = gen_notes(p_notes, octave)
             spooky_mode = False
             play = False
         screen.blit(cat, (cat_x_pos, cat_y_pos))
