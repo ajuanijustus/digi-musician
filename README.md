@@ -9,7 +9,7 @@ This app generates music, displays the notes (somewhat clumsily) and then plays 
 
 Watch out for the _spooky_ easter egg!
 
-![alt text](https://github.com/ajuanijustus/digi-musician/blob/main/DigiMusician.png?raw=true)
+![alt text](https://github.com/ajuanijustus/digi-musician/blob/main/images/DigiMusician.png?raw=true)
 
 ### Our Inspiration ❤️
 "I wish I found some chords in an order that is new" - Stressed Out by twenty one pilots
