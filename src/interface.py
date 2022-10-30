@@ -225,6 +225,7 @@ buttonGen = Button(10, 10, "Re-Generate")
 buttonSave = Button(buttonGen.x+buttonGen.width+20, 10, "Save")
 buttonChords = Button(buttonSave.x+buttonSave.width+20, 10, "Chords Off")
 buttonScale = Button(buttonChords.x+buttonChords.width+20, 10, "major".title())
+
 inputs = [
     IntInput(buttonScale.x+buttonScale.width+80, 10, " ", 100),
     IntInput(buttonScale.x+buttonScale.width+200, 10, " ", 100)
