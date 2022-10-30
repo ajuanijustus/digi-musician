@@ -77,13 +77,13 @@ class IntInput(Button):
         return False
 
 # Function to generte new song
-def gen_new(base_note, scale_type, chords_flag):
+def gen_new(base_note, scale_type, chords_flag, spooky_mode):
     # Stop the music so that the file is no longer open
     pygame.mixer.music.stop()
     pygame.mixer.music.unload()
 
     # Generate new set of notes
-    generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag)
+    generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag, spooky_mode)
     midi_to_mp3(MIDI_FILENAME)
 
     # Load new midi file and start playing it
@@ -183,7 +183,7 @@ while True:
     if buttonGen.hovered(*pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
         if intInput.text != " ":
             base_note = int(intInput.text)
-        gen_new(base_note, "major", chords_flag)
+        gen_new(base_note, "major", chords_flag, False)
         play = False
 
     # Check if second button hovered/clicked
@@ -233,9 +233,11 @@ while True:
         cat_hight = 8
         mx, my = pygame.mouse.get_pos()
         if cat_x <= mx <= cat_x+cat_wid and cat_y <= my <= cat_y+cat_hight and mouse_pressed:
-            # extra_spooky_gen
+            if intInput.text != " ":
+                base_note = int(intInput.text)
+            gen_new(base_note, scale_type, chords_flag, True)
             spooky_mode = False
-            print("boo!")
+            play = False
         screen.blit(cat, (300, 10))
     
     # Update the screen
