@@ -192,6 +192,7 @@ base_note = 60
 scale_type = 'major'
 chords_flag = False
 tempo = 90
+chords_interval = 4
 
 # Get location of midi_file
 path = os.getcwd()
@@ -227,9 +228,9 @@ buttonChords = Button(buttonSave.x+buttonSave.width+20, 10, "Chords Off")
 buttonScale = Button(buttonChords.x+buttonChords.width+20, 10, "major".title())
 
 inputs = [
-    IntInput(buttonScale.x+buttonScale.width+80, 10, "", 100),
-    IntInput(buttonScale.x+buttonScale.width+200, 10, "", 100),
-    IntInput(buttonSave.x+buttonSave.width+20, 50, "", 100)
+    IntInput(buttonScale.x+buttonScale.width+80, 10, " ", 100),
+    IntInput(buttonScale.x+buttonScale.width+200, 10, " ", 100),
+    IntInput(buttonSave.x+buttonSave.width+20, 50, " ", 100)
 ]
 
 # Var to keep track of music
@@ -299,7 +300,7 @@ while True:
     if buttonScale.hovered(*pygame.mouse.get_pos()) and mouse_pressed:
         buttonScale.text = scale_opp[buttonScale.text.lower()].title()
         buttonScale.rerender()
-        scale = buttonScale.text.lower().replace(" ", "_")
+        scale_type = buttonScale.text.lower().replace(" ", "_")
     
     for input in inputs:
         if input.hovered(*pygame.mouse.get_pos()):
