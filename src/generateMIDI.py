@@ -25,18 +25,16 @@ def generate_scale(base_note=60, scale_type='major'):
         scale  = [i, i+2, i+4, i+5, i+7, i+9, i+11, i+12]  # T T S T T T S
     elif scale_type == 'natural_minor':
         scale  = [i, i+2, i+3, i+5, i+7, i+8, i+10, i+12] # T S T T S T T
-    elif scale_type == 'harmonic_minor':
-        scale  = [] #T – S – T – T – S – T1⁄2 – S
-    elif scale_type == 'melodic_minor':
-        scale  = [] #acs. T – S – T – T – T – T – S and on desc T – T – S – T – T – S – T
+    elif scale_type == 'blues_minor':
+        scale  = [i, i+3, i+5, i+8, i+10, i+12] # m3 T m3 T T
+    elif scale_type == 'blues_major':
+        scale  = [i, i+2, i+5, i+7, i+9, i+12] # T m3 T T m3
     else:
         print('Invalid scale_type. scale_type defaulting to "major"')
         scale  = [i, i+2, i+4, i+5, i+7, i+9, i+11, i+12]
     return scale
 
-def generate_midi(MIDI_FILENAME, base_note, scale_type, track = 0,
-channel = 0, time = 0, duration = 1, tempo = 90, volume = 100,
-chords_flag=False, spook = False):
+def generate_midi(MIDI_FILENAME, base_note, scale_type, track = 0, channel = 0, time = 0, duration = 1, tempo = 90, volume = 100, chords_flag = False, chords_interval = 2, spook = False):
     volume_diff_for_chords = 10
     scale = generate_scale(base_note, scale_type)
 
@@ -60,7 +58,7 @@ chords_flag=False, spook = False):
             # melody
             MyMIDI.addNote(track, channel, pitch, time + t, duration, volume)
             # bass chord: minus 36 (3 octaves) for bass chord's base
-            if (t%4 == 0) and chords_flag:
+            if (t%chords_interval == 0) and chords_flag:
                 if i in [0, 3, 4, 7]: # major chords
                     MyMIDI.addNote(track, channel, pitch-36, time + t, 3, volume-volume_diff_for_chords)
                     MyMIDI.addNote(track, channel, pitch-36+4, time + t, 3, volume-volume_diff_for_chords)
