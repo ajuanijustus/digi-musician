@@ -14,5 +14,5 @@ duration = 1    # In beats
 tempo    = 90   # In BPM
 volume   = 100  
 
-generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag, spook = True)
+generate_midi(MIDI_FILENAME, base_note, scale_type, track = 0, channel = 0, time = 0, duration = 1, tempo = 90, volume = 100, chords_flag=False, spook = True)
 midi_to_mp3(MIDI_FILENAME)
