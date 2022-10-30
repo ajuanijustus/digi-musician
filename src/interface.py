@@ -99,7 +99,7 @@ class Note:
 
         gap_len = (WIDTH - 40) / (song_length // note_length)
 
-        self.x = (self.start//note_length)*gap_len
+        self.x = (self.start//note_length)*gap_len + 20
 
         if round(self.duration,2) == round(note_length,2):
             self.fill = False
@@ -120,7 +120,7 @@ class Note:
         if self.fill:
             pygame.draw.circle(screen, (255, 255, 255), (self.x, self.y), self.radius - 2)
 
-        pygame.draw.line(screen, (0, 0, 0), (self.x+self.radius-1, self.y), (self.x+self.radius-1, self.y - self.note_h), 3)
+        pygame.draw.line(screen, (0, 0, 0), (self.x+self.radius-1, self.y), (self.x+self.radius-1, self.y - self.note_h), 2)
         
 
 
