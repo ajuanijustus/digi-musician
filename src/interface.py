@@ -196,7 +196,8 @@ WIDTH, HEIGHT = (800, 600)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 LINE_THICKNESS = 3
-LINE_GAP = 24
+LINE_GAP = 30
+
 PADDING = 100
 GREY = 175
 WHITE = 255
@@ -246,7 +247,7 @@ BUTTON_PADDING = 20
 Y_PADDING = 10
 X_PADDING = 10
 INPUT_WIDTH = 100
-TEXT_PADDING = 50
+TEXT_PADDING = 80
 buttonGen = Button(X_PADDING, Y_PADDING, "Re-Generate")
 buttonSave = Button(buttonGen.x+buttonGen.width+BUTTON_PADDING, Y_PADDING, "Save")
 buttonChords = Button(buttonSave.x+buttonSave.width+BUTTON_PADDING, Y_PADDING, "Chords Off")
@@ -254,7 +255,7 @@ buttonScale = Button(buttonChords.x+buttonChords.width+BUTTON_PADDING, Y_PADDING
 
 inputs = [
     IntInput(buttonScale.x+buttonScale.width+BUTTON_PADDING+TEXT_PADDING, Y_PADDING, "", INPUT_WIDTH, "Base note:"),
-    IntInput(buttonScale.x+buttonScale.width+INPUT_WIDTH+TEXT_PADDING, Y_PADDING, "", INPUT_WIDTH, "Tempo: "),
+    IntInput(buttonScale.x+buttonScale.width+BUTTON_PADDING+INPUT_WIDTH+TEXT_PADDING*2, Y_PADDING, "", INPUT_WIDTH, "Tempo: "),
     IntInput(buttonSave.x+buttonSave.width+BUTTON_PADDING, buttonChords.y+buttonChords.height+buttonChords.border + Y_PADDING, "", INPUT_WIDTH, "Chord: ")
 ]
 
