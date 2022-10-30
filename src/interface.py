@@ -7,6 +7,7 @@ import pygame
 import os
 import sys
 import shutil
+import pretty_midi
 
 # Button Class
 class Button:
