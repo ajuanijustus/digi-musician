@@ -7,6 +7,7 @@ import pygame
 import os
 import sys
 import shutil
+import pretty_midi
 
 # Button Class
 class Button:
@@ -105,13 +106,15 @@ generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag)
 midi_to_mp3(MIDI_FILENAME)
 
 # Code to get notes
-"""path = os.getcwd()
+path = os.getcwd()
 midi_filename = os.path.join(path, "midiFiles", f"{MIDI_FILENAME}.mid")
 
 pm = pretty_midi.PrettyMIDI(midi_filename)
 
 for inst in pm.instruments:
-    print(inst.notes)"""
+    print(inst.notes)
+
+sys.exit()
 
 # Get mp3 filename
 path = os.getcwd()
