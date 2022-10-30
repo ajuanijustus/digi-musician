@@ -96,8 +96,6 @@ class Note:
         self.duration = duration
         self.note = note
 
-        self.octave = octave
-
         note_height = dict(zip("CDEFGAB",[0,1,2,3,4,5,6]))
         note_base_height = HEIGHT // 3 + 7*(LINE_GAP//2)
         chord_base_height = 2 * HEIGHT // 3 + 5*(LINE_GAP//2)
@@ -112,7 +110,8 @@ class Note:
             self.y = note_base_height
             if self.note[1] == "#":
                 self.display_hash = True
-
+            
+            self.y -= 8*(LINE_GAP//2)*(int(self.note[-1]) - int(octave))
         else:
             self.fill = True
             self.y = chord_base_height
