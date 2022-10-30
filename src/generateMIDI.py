@@ -44,14 +44,12 @@ duration = 1    # In beats
 tempo    = 90   # In BPM
 volume   = 100  # 0-127, as per the MIDI standard
 
-def generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag=False):
+def generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag=False, spook = True):
     scale = generate_scale(base_note, scale_type)
     # melody = [random.choice(scale) for x in range(20)]
 
     MyMIDI = MIDIFile(1)  # One track, defaults to format 1 (tempo track is created automatically)
     MyMIDI.addTempo(track, time, tempo)
-
-    spook = True
 
     if spook == True:
         scale = [base_note, base_note+3, base_note+6, base_note+9, base_note+12, base_note+15, base_note+18]
