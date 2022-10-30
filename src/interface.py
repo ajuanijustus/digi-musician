@@ -104,15 +104,19 @@ class Note:
 
         self.x = (self.start//note_length)*gap_len + 20
 
+        self.display_hash = False
         if round(self.duration,2) == round(note_length,2):
             self.fill = False
             self.y = note_base_height
-            # self.y -= (int(self.note[1])-4)*(7*15)
+            if self.note[1] == "#":
+                self.display_hash = True
         else:
             self.fill = True
             self.y = chord_base_height
 
         self.y -= note_height[self.note[0]]*15
+
+        print(self.note[1])
         
         self.note_h = 40
         self.radius = 8
@@ -125,6 +129,8 @@ class Note:
 
         pygame.draw.line(screen, (0, 0, 0), (self.x+self.radius-1, self.y), (self.x+self.radius-1, self.y - self.note_h), 2)
         
+        if self.display_hash:
+            screen.blit(hash_sym, (self.x-self.radius-2, self.y-hash_sym.get_height()-self.radius-2))
 
 
 # Function to generte new song
@@ -221,6 +227,8 @@ pygame.mixer.music.load(mp3_filename)
 # Create font to render
 font = pygame.font.SysFont("Helvetica", 12)
 
+hash_sym = font.render("#", True, (0, 0, 0))
+
 # Dict to help flip text value
 opp = {"Chords On":"Chords Off", "Chords Off":"Chords On"}
 scale_opp = {
@@ -235,8 +243,8 @@ buttonChords = Button(buttonSave.x+buttonSave.width+20, 10, "Chords Off")
 buttonScale = Button(buttonChords.x+buttonChords.width+20, 10, "major".title())
 
 inputs = [
-    IntInput(buttonScale.x+buttonScale.width+80, 10, "", 100, "Base note:"),
-    IntInput(buttonScale.x+buttonScale.width+250, 10, "", 100, "Tempo: "),
+    IntInput(buttonScale.x+buttonScale.width+140, 10, "", 100, "Base note:"),
+    IntInput(buttonScale.x+buttonScale.width+310, 10, "", 100, "Tempo: "),
     IntInput(buttonSave.x+buttonSave.width+20, 50, "", 100, "Chord: ")
 ]
 
