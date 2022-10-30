@@ -105,13 +105,82 @@ generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag)
 midi_to_mp3(MIDI_FILENAME)
 
 # Code to get notes
-"""path = os.getcwd()
+import pretty_midi
+import pandas as pd
+import collections
+import numpy as np
+from matplotlib import pyplot as plt
+import matplotlib
+
+matplotlib.use("Agg")
+
+import matplotlib.backends.backend_agg as agg
+import pylab
+
+
+path = os.getcwd()
 midi_filename = os.path.join(path, "midiFiles", f"{MIDI_FILENAME}.mid")
 
-pm = pretty_midi.PrettyMIDI(midi_filename)
+def midi_to_notes(midi_file: str) -> pd.DataFrame:
+  pm = pretty_midi.PrettyMIDI(midi_file)
+  instrument = pm.instruments[0]
+  notes = collections.defaultdict(list)
 
-for inst in pm.instruments:
-    print(inst.notes)"""
+  # Sort the notes by start time
+  sorted_notes = sorted(instrument.notes, key=lambda note: note.start)
+  prev_start = sorted_notes[0].start
+
+  for note in sorted_notes:
+    start = note.start
+    end = note.end
+    notes['pitch'].append(note.pitch)
+    notes['start'].append(start)
+    notes['end'].append(end)
+    notes['step'].append(start - prev_start)
+    notes['duration'].append(end - start)
+    prev_start = start
+
+  return pd.DataFrame({name: np.array(value) for name, value in notes.items()})
+
+raw_notes = midi_to_notes(midi_filename)
+get_note_names = np.vectorize(pretty_midi.note_number_to_name)
+sample_note_names = get_note_names(raw_notes['pitch'])
+print(sample_note_names[:10])
+
+def plot_piano_roll(notes: pd.DataFrame):
+    title = f'Whole track'
+    count = len(notes['pitch'])
+    # plt.figure(figsize=(20, 4))
+    fig = pylab.figure(figsize=(20, 4), # Inches
+                   dpi=100,        # 100 dots per inch, so the resulting buffer is 400x400 pixels
+                   )
+    plot_pitch = np.stack([notes['pitch'], notes['pitch']], axis=0)
+    plot_start_stop = np.stack([notes['start'], notes['end']], axis=0)
+    # plt.plot(plot_start_stop[:, :count], plot_pitch[:, :count], color="b", marker=".")
+    # plt.xlabel('Time [s]')
+    # plt.ylabel('Pitch')
+    # _ = plt.title(title)
+    ax = fig.gca()
+    ax.plot(plot_start_stop[:, :count], plot_pitch[:, :count], color="b", marker=".")
+    return fig, ax
+
+fig, ax = plot_piano_roll(raw_notes)
+canvas = agg.FigureCanvasAgg(fig)
+canvas.draw()
+renderer = canvas.get_renderer()
+raw_data = renderer.tostring_rgb()
+size = canvas.get_width_height()
+
+# screen = pygame.display.get_surface()
+# surf = pygame.image.fromstring(raw_data, size, "RGB")
+# screen.blit(surf, (0,0))
+# pygame.display.flip()
+
+# crashed = False
+# while not crashed:
+#     for event in pygame.event.get():
+#         if event.type == pygame.QUIT:
+#             crashed = True
 
 # Get mp3 filename
 path = os.getcwd()
@@ -215,8 +284,12 @@ while True:
             intInput.rerender()
 
     # Draw 4 lines
-    for i in range(5):
-        pygame.draw.rect(screen, (0, 0, 0), (0, HEIGHT//2+30*i, WIDTH, 5))
+    screen = pygame.display.get_surface()
+    surf = pygame.image.fromstring(raw_data, size, "RGB")
+    screen.blit(surf, (0,0))
+    pygame.display.flip()
+    # for i in range(5):
+    #     pygame.draw.rect(screen, (0, 0, 0), (0, HEIGHT//2+30*i, WIDTH, 5))
 
     # If not already playing, play the notes
     if not play:
