@@ -1,5 +1,4 @@
 # Import from modules
-from tkinter.font import names
 from generateMIDI import generate_midi
 from midiToMP3 import midi_to_mp3
 
@@ -9,11 +8,9 @@ import os
 import sys
 import shutil
 import pretty_midi
-import pretty_midi
 import pandas as pd
 import collections
 import numpy as np
-import pylab
 
 # Initialise the mixer module
 pygame.mixer.init()
@@ -125,7 +122,7 @@ class Note:
 
 
 # Function to generte new song
-def gen_new(base_note, scale_type, chords_flag, spooky_mode):
+def gen_new(base_note, scale_type, chords_flag, tempo=90, spooky_mode=False):
     # Stop the music so that the file is no longer open
     try:
         pygame.mixer.music.stop()
@@ -134,7 +131,7 @@ def gen_new(base_note, scale_type, chords_flag, spooky_mode):
         ...
 
     # Generate new set of notes
-    generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag=chords_flag, spook=spooky_mode)
+    generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag=chords_flag, tempo=tempo, spook=spooky_mode)
     midi_to_mp3(MIDI_FILENAME)
 
     # Load new midi file and start playing it
@@ -176,25 +173,6 @@ def midi_to_notes(midi_file: str) -> pd.DataFrame:
 
   return pd.DataFrame({name: np.array(value) for name, value in notes.items()})
 
-
-# Function to plot the piano notes
-def plot_piano_roll(notes: pd.DataFrame):
-    title = f'Whole track'
-    count = len(notes['pitch'])
-    # plt.figure(figsize=(20, 4))
-    fig = pylab.figure(figsize=(20, 4), # Inches
-                   dpi=100,        # 100 dots per inch, so the resulting buffer is 400x400 pixels
-                   )
-    plot_pitch = np.stack([notes['pitch'], notes['pitch']], axis=0)
-    plot_start_stop = np.stack([notes['start'], notes['end']], axis=0)
-    # plt.plot(plot_start_stop[:, :count], plot_pitch[:, :count], color="b", marker=".")
-    # plt.xlabel('Time [s]')
-    # plt.ylabel('Pitch')
-    # _ = plt.title(title)
-    ax = fig.gca()
-    ax.plot(plot_start_stop[:, :count], plot_pitch[:, :count], color="b", marker=".")
-    return fig, ax
-
 def gen_notes(note_set):
     notes = []
     for note in note_set:
@@ -213,13 +191,14 @@ MIDI_FILENAME = "c_scale_withbass_random"
 base_note = 60
 scale_type = 'major'
 chords_flag = False
+tempo = 90
 
 # Get location of midi_file
 path = os.getcwd()
 midi_filename = os.path.join(path, "midiFiles", f"{MIDI_FILENAME}.mid")
 
 # Generate midi files
-p_notes = gen_new(base_note, scale_type, chords_flag, False)
+p_notes = gen_new(base_note, scale_type, chords_flag)
 notes = gen_notes(p_notes)
 
 # Get mp3 filename
@@ -236,12 +215,20 @@ font = pygame.font.SysFont("Helvetica", 12)
 
 # Dict to help flip text value
 opp = {"Chords On":"Chords Off", "Chords Off":"Chords On"}
+scale_opp = {
+    "major":"natural minor", "natural minor":"blues minor",
+    "blues minor":"blues major", "blues major":"major"
+}
 
 # Buttons
 buttonGen = Button(10, 10, "Re-Generate")
-buttonChords = Button(80, 10, "Chords Off")
-buttonSave = Button(260, 10, "Save")
-intInput = IntInput(140, 10, " ", 100)
+buttonSave = Button(buttonGen.x+buttonGen.width+20, 10, "Save")
+buttonChords = Button(buttonSave.x+buttonSave.width+20, 10, "Chords Off")
+buttonScale = Button(buttonChords.x+buttonChords.width+20, 10, "major".title())
+inputs = [
+    IntInput(buttonScale.x+buttonScale.width+80, 10, " ", 100),
+    IntInput(buttonScale.x+buttonScale.width+200, 10, " ", 100)
+]
 
 # Var to keep track of music
 play = False
@@ -278,13 +265,19 @@ while True:
     buttonGen.draw(screen)
     buttonChords.draw(screen)
     buttonSave.draw(screen)
-    intInput.draw(screen)
+    buttonScale.draw(screen)
+
+    for input in inputs:
+        input.draw(screen)
 
     # Check if first button hovered/clicked
     if buttonGen.hovered(*pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-        if intInput.text != " ":
-            base_note = int(intInput.text)
-        p_notes = gen_new(base_note, scale_type, chords_flag, False)
+        if inputs[0].text != " ":
+            base_note = int(inputs[0].text)
+        if inputs[1].text != " ":
+            tempo = int(inputs[1].text)
+        
+        p_notes = gen_new(base_note, scale_type, chords_flag, tempo=tempo)
         notes = gen_notes(p_notes)
         play = False
 
@@ -298,23 +291,29 @@ while True:
         mp3_path = os.path.join(path, "mp3Files")
         files = os.listdir(mp3_path)
         shutil.copy(mp3_filename, os.path.join(mp3_path, f"song{len(files)-1}.mp3"))
-        
-    if intInput.hovered(*pygame.mouse.get_pos()):
-        if pygame.mouse.get_pressed()[0]:
-            intInput.typing = True
-            intInput.inner_colour = 150
-    elif pygame.mouse.get_pressed()[0]:
-        intInput.typing = False
-        intInput.inner_colour = 255
-    
-    if intInput.typing:
-        for num in pressed_keys:
-            if num == "back":
-                intInput.text = intInput.text[:-1]
-            else:
-                intInput.text += num
 
-            intInput.rerender()
+    if buttonScale.hovered(*pygame.mouse.get_pos()) and mouse_pressed:
+        buttonScale.text = scale_opp[buttonScale.text.lower()].title()
+        buttonScale.rerender()
+        scale = buttonScale.text.lower().replace(" ", "_")
+    
+    for input in inputs:
+        if input.hovered(*pygame.mouse.get_pos()):
+            if pygame.mouse.get_pressed()[0]:
+                input.typing = True
+                input.inner_colour = 150
+        elif pygame.mouse.get_pressed()[0]:
+            input.typing = False
+            input.inner_colour = 255
+        
+        if input.typing:
+            for num in pressed_keys:
+                if num == "back":
+                    input.text = input.text[:-1]
+                else:
+                    input.text += num
+
+                input.rerender()
 
     # Draw 4 lines
     for i in range(5):
@@ -342,9 +341,11 @@ while True:
         cat_hight = 8
         mx, my = pygame.mouse.get_pos()
         if cat_x <= mx <= cat_x+cat_wid and cat_y <= my <= cat_y+cat_hight and mouse_pressed:
-            if intInput.text != " ":
-                base_note = int(intInput.text)
-            p_notes = gen_new(base_note, scale_type, chords_flag, True)
+            if inputs[0].text != " ":
+                base_note = int(inputs[0].text)
+            if inputs[1].text != " ":
+                tempo = int(inputs[1].text)
+            p_notes = gen_new(base_note, scale_type, chords_flag, tempo, True)
             notes = gen_notes(p_notes)
             spooky_mode = False
             play = False
