@@ -2,15 +2,16 @@
 
 Collaboarative python project during the hack the midlands project.
 
-## Pitch
+## Description
 Do you need somewhat goodish sounding music? Well I have the app for you!
 
-## Description
 This app generates music, displays the notes (somewhat clumsily) and then plays the beautiful tune for your listening pleasure.
 
 Watch out for the _spooky_ easter egg!
 
-## Our Inspiration ❤️
+![alt text](https://github.com/ajuanijustus/digi-musician/blob/main/DigiMusician.png?raw=true)
+
+### Our Inspiration ❤️
 "I wish I found some chords in an order that is new" - Stressed Out by twenty one pilots
 
 ## Research
