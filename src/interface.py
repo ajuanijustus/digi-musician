@@ -141,6 +141,7 @@ def gen_new(base_note, scale_type, chords_flag, tempo=90, spooky_mode=False, cho
         ...
 
     # Generate new set of notes
+    print(f'Scale type: {scale_type}')
     generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag=chords_flag, tempo=tempo, spook=spooky_mode, chords_interval=chords_interval)
     midi_to_mp3(MIDI_FILENAME)
 
