@@ -1,4 +1,5 @@
 # Import from modules
+from tkinter.font import names
 from generateMIDI import generate_midi
 from midiToMP3 import midi_to_mp3
 
@@ -8,6 +9,15 @@ import os
 import sys
 import shutil
 import pretty_midi
+import pretty_midi
+import pandas as pd
+import collections
+import numpy as np
+import pylab
+
+# Initialise the mixer module
+pygame.mixer.init()
+pygame.font.init()
 
 # Button Class
 class Button:
@@ -77,51 +87,74 @@ class IntInput(Button):
             self.inner_colour = 255
         return False
 
+class Note:
+    def __init__(self, start, duration, note, note_length, song_length) -> None:
+        self.start = start
+        self.duration = duration
+        self.note = note
+
+        note_height = dict(zip("CDEFGAB",[0,1,2,3,4,5,6]))
+        note_base_height = HEIGHT // 3 + 135
+        chord_base_height = 2 * HEIGHT // 3 + 135
+
+        gap_len = (WIDTH - 40) / (song_length // note_length)
+
+        self.x = (self.start//note_length)*gap_len
+
+        if round(self.duration,2) == round(note_length,2):
+            self.fill = False
+            self.y = note_base_height
+            # self.y -= (int(self.note[1])-4)*(7*15)
+        else:
+            self.fill = True
+            self.y = chord_base_height
+
+        self.y -= note_height[self.note[0]]*15
+        
+        self.note_h = 40
+        self.radius = 8
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, (0, 0, 0), (self.x, self.y), self.radius)
+
+        if self.fill:
+            pygame.draw.circle(screen, (255, 255, 255), (self.x, self.y), self.radius - 2)
+
+        pygame.draw.line(screen, (0, 0, 0), (self.x+self.radius-1, self.y), (self.x+self.radius-1, self.y - self.note_h), 3)
+        
+
+
 # Function to generte new song
 def gen_new(base_note, scale_type, chords_flag, spooky_mode):
     # Stop the music so that the file is no longer open
-    pygame.mixer.music.stop()
-    pygame.mixer.music.unload()
+    try:
+        pygame.mixer.music.stop()
+        pygame.mixer.music.unload()
+    except:
+        ...
 
     # Generate new set of notes
-    generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag, spooky_mode)
+    generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag=chords_flag, spook=spooky_mode)
     midi_to_mp3(MIDI_FILENAME)
 
     # Load new midi file and start playing it
     mp3_filename = os.path.join(path, "mp3Files", f"{MIDI_FILENAME}.mp3")
     pygame.mixer.music.load(mp3_filename)
 
-    print("done")
+    raw_notes = midi_to_notes(midi_filename)
+    get_note_names = np.vectorize(pretty_midi.note_number_to_name)
+    sample_note_names = get_note_names(raw_notes['pitch'])
 
-# Define contant file name 
-MIDI_FILENAME = "c_scale_withbass_random"
+    starts = [i for i in np.vectorize(float)(raw_notes["start"])]
+    ends = [i for i in np.vectorize(float)(raw_notes["end"])]
+    durs = [i for i in np.vectorize(float)(raw_notes["duration"])]
 
-# Generating MIDI variables
-base_note = 60
-scale_type = 'major'
-chords_flag = False
+    notes = list(zip(starts, durs, sample_note_names, ends))
 
-# Generate midi files
-generate_midi(MIDI_FILENAME, base_note, scale_type, chords_flag)
-midi_to_mp3(MIDI_FILENAME)
-
-# Code to get notes
-import pretty_midi
-import pandas as pd
-import collections
-import numpy as np
-from matplotlib import pyplot as plt
-import matplotlib
-
-matplotlib.use("Agg")
-
-import matplotlib.backends.backend_agg as agg
-import pylab
+    return notes
 
 
-path = os.getcwd()
-midi_filename = os.path.join(path, "midiFiles", f"{MIDI_FILENAME}.mid")
-
+# Function to turn  midi_notes into a dataframe
 def midi_to_notes(midi_file: str) -> pd.DataFrame:
   pm = pretty_midi.PrettyMIDI(midi_file)
   instrument = pm.instruments[0]
@@ -143,11 +176,8 @@ def midi_to_notes(midi_file: str) -> pd.DataFrame:
 
   return pd.DataFrame({name: np.array(value) for name, value in notes.items()})
 
-raw_notes = midi_to_notes(midi_filename)
-get_note_names = np.vectorize(pretty_midi.note_number_to_name)
-sample_note_names = get_note_names(raw_notes['pitch'])
-print(sample_note_names[:10])
 
+# Function to plot the piano notes
 def plot_piano_roll(notes: pd.DataFrame):
     title = f'Whole track'
     count = len(notes['pitch'])
@@ -165,31 +195,36 @@ def plot_piano_roll(notes: pd.DataFrame):
     ax.plot(plot_start_stop[:, :count], plot_pitch[:, :count], color="b", marker=".")
     return fig, ax
 
-fig, ax = plot_piano_roll(raw_notes)
-canvas = agg.FigureCanvasAgg(fig)
-canvas.draw()
-renderer = canvas.get_renderer()
-raw_data = renderer.tostring_rgb()
-size = canvas.get_width_height()
+def gen_notes(note_set):
+    notes = []
+    for note in note_set:
+        notes.append(Note(*note[:3], min(note_set, key=lambda x: x[1])[1], max(note_set, key=lambda x: x[3])[3]))
 
-# screen = pygame.display.get_surface()
-# surf = pygame.image.fromstring(raw_data, size, "RGB")
-# screen.blit(surf, (0,0))
-# pygame.display.flip()
+    return notes
 
-# crashed = False
-# while not crashed:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             crashed = True
+# Set screen width and height
+WIDTH, HEIGHT = (800, 600)
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+# Define contant file name 
+MIDI_FILENAME = "c_scale_withbass_random"
+
+# Generating MIDI variables
+base_note = 60
+scale_type = 'major'
+chords_flag = False
+
+# Get location of midi_file
+path = os.getcwd()
+midi_filename = os.path.join(path, "midiFiles", f"{MIDI_FILENAME}.mid")
+
+# Generate midi files
+p_notes = gen_new(base_note, scale_type, chords_flag, False)
+notes = gen_notes(p_notes)
 
 # Get mp3 filename
 path = os.getcwd()
 mp3_filename = os.path.join(path, "mp3Files", f"{MIDI_FILENAME}.mp3")
-
-# Initialise the mixer module
-pygame.mixer.init()
-pygame.font.init()
 
 cat = pygame.image.load(os.path.join(path, "images", "catPump.jpg"))
 
@@ -198,10 +233,6 @@ pygame.mixer.music.load(mp3_filename)
 
 # Create font to render
 font = pygame.font.SysFont("Helvetica", 12)
-
-# Set screen width and height
-WIDTH, HEIGHT = (800, 600)
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # Dict to help flip text value
 opp = {"Chords On":"Chords Off", "Chords Off":"Chords On"}
@@ -253,7 +284,8 @@ while True:
     if buttonGen.hovered(*pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
         if intInput.text != " ":
             base_note = int(intInput.text)
-        gen_new(base_note, "major", chords_flag, False)
+        p_notes = gen_new(base_note, scale_type, chords_flag, False)
+        notes = gen_notes(p_notes)
         play = False
 
     # Check if second button hovered/clicked
@@ -285,12 +317,15 @@ while True:
             intInput.rerender()
 
     # Draw 4 lines
-    screen = pygame.display.get_surface()
-    surf = pygame.image.fromstring(raw_data, size, "RGB")
-    screen.blit(surf, (0,0))
-    pygame.display.flip()
-    # for i in range(5):
-    #     pygame.draw.rect(screen, (0, 0, 0), (0, HEIGHT//2+30*i, WIDTH, 5))
+    for i in range(5):
+        pygame.draw.rect(screen, (0, 0, 0), (0, HEIGHT//3+30*i, WIDTH, 5))
+
+    # Draw 4 lines
+    for i in range(5):
+        pygame.draw.rect(screen, (0, 0, 0), (0, 2*HEIGHT//3+30*i, WIDTH, 5))
+
+    for note in notes:
+        note.draw(screen)
 
     # If not already playing, play the notes
     if not play:
@@ -309,7 +344,8 @@ while True:
         if cat_x <= mx <= cat_x+cat_wid and cat_y <= my <= cat_y+cat_hight and mouse_pressed:
             if intInput.text != " ":
                 base_note = int(intInput.text)
-            gen_new(base_note, scale_type, chords_flag, True)
+            p_notes = gen_new(base_note, scale_type, chords_flag, True)
+            notes = gen_notes(p_notes)
             spooky_mode = False
             play = False
         screen.blit(cat, (300, 10))

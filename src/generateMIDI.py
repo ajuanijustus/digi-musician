@@ -34,7 +34,9 @@ def generate_scale(base_note=60, scale_type='major'):
         scale  = [i, i+2, i+4, i+5, i+7, i+9, i+11, i+12]
     return scale
 
-def generate_midi(MIDI_FILENAME, base_note, scale_type, track = 0, channel = 0, time = 0, duration = 1, tempo = 90, volume = 100, chords_flag=False, spook = True):
+def generate_midi(MIDI_FILENAME, base_note, scale_type, track = 0,
+channel = 0, time = 0, duration = 1, tempo = 90, volume = 100,
+chords_flag=False, spook = False):
     volume_diff_for_chords = 10
     scale = generate_scale(base_note, scale_type)
 
